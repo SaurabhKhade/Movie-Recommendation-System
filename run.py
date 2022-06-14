@@ -21,5 +21,15 @@ def home():
     return app.send_static_file('index.html')
 
 
+@app.route('/movie')
+def movie():
+    return app.send_static_file('movie.html')
+
+
+@app.errorhandler(404)
+def handle_404(error):
+    return app.send_static_file('404.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True)
