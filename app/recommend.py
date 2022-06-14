@@ -16,7 +16,6 @@ class Recommend(Resource):
             return recommend(id)
 
         except ValidationError as err:
-            print(err.messages)
             return {'Message': 'Bad Request',
                     "reason": err.messages,
                     'request format': {
@@ -24,5 +23,4 @@ class Recommend(Resource):
                     }}
 
         except Exception:
-            print(Exception)
             return {'Message': 'Something went wrong! Please try again after some time'}

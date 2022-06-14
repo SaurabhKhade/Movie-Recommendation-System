@@ -21,7 +21,6 @@ class Search(Resource):
                 return desc_search(params['data'])
 
         except ValidationError as err:
-            # print(err.messages)
             return {'Message': 'Bad Request',
                     "reason": err.messages,
                     'request format': {
@@ -29,6 +28,5 @@ class Search(Resource):
                         'data': 'text to search'
                     }}
 
-        except Exception as e:
-            # print(e)
+        except Exception:
             return {'Message': 'Something went wrong! Please try again after some time'}

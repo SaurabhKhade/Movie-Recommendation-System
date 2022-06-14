@@ -7,6 +7,7 @@ from app.data_bundle import Data
 from flask_cors import CORS
 
 app = Flask(__name__)
+app.config['JSON_SORT_KEYS'] = False
 CORS(app)
 api = Api(app)
 

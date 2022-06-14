@@ -1,7 +1,10 @@
 import pandas as pd
 import pickle
+import json
 from nltk.stem.porter import PorterStemmer
 from sklearn.metrics.pairwise import cosine_similarity
+from nltk.tokenize import RegexpTokenizer
+tokenizer = RegexpTokenizer(r'\w+')
 
 stemmer = PorterStemmer()
 data = pd.read_csv('./app/data/ids_n_titles.csv')
@@ -22,7 +25,16 @@ with open('./app/data/title_vectors.pickle', 'rb') as f:
     title_vectors = pickle.load(f)
 
 
+def remove_punctuations(text):
+    try:
+        text = tokenizer.tokenize(text)
+        return " ".join(text)
+    except Exception:
+        return ""
+
+
 def recommend(id):
+
     try:
         index = data[data['id'] == id].index[0]
     except:
@@ -32,11 +44,10 @@ def recommend(id):
     sim_scores = sim_scores[1:21]
     movie_indices = [i[0] for i in sim_scores]
     dict = data.iloc[movie_indices][['id', 'title']].to_dict()
-    movies = {'message': 'Success', "data": {}}
+    movies = {'message': 'Success', "data": []}
     for key in dict["id"].keys():
-        movies['data'][dict["id"][key]] = dict["title"][key]
-
-    movies['message'] = 'Success'
+        movies['data'].append(
+            {"id": dict["id"][key], "title": dict["title"][key]})
 
     return movies
 
@@ -49,20 +60,24 @@ def get_movies(vector, vectors, count):
     sim_scores = sim_scores[0:count]
     movie_indices = [i[0] for i in sim_scores]
     dict = data.iloc[movie_indices][['id', 'title']].to_dict()
-    movies = {'message': 'Success', "data": {}}
+
+    movies = {'message': 'Success', "data": []}
     for key in dict["id"].keys():
-        movies['data'][dict["id"][key]] = dict["title"][key]
+        movies['data'].append(
+            {"id": dict["id"][key], "title": dict["title"][key]})
 
     return movies
 
 
 def desc_search(desc):
+    desc = remove_punctuations(desc)
     desc = " ".join([stemmer.stem(word) for word in desc.split()])
     vector = vectorizer.transform([desc])
     return get_movies(vector, vectors, 20)
 
 
 def title_search(title):
+    title = remove_punctuations(title)
     title = " ".join([stemmer.stem(word) for word in title.split()])
     vector = title_vectorizer.transform([title])
     return get_movies(vector, title_vectors, 20)
